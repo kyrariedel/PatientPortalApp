@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Appointment Title" />
+
+    <EditText
+        android:id="@+id/etAppointmentName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Add Appointment Title"
+        android:inputType="text" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Date of Appointment" />
+
+    <EditText
+        android:id="@+id/etAppointmentDate"
+        android:focusable="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="YYYY-MM-DD"
+        android:inputType="date" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Time of Appointment" />
+
+    <EditText
+        android:id="@+id/etAppointmentTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Hours:Minutes"
+        android:focusable="false"
+        android:inputType="time" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Notes" />
+
+    <EditText
+        android:id="@+id/etNotes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Add Notes (Optional)"
+        android:inputType="text" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Select a Patient" />
+
+    <Spinner
+        android:id="@+id/spPatients"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Select Patient"/>
+</LinearLayout>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Physician Theme -->
+    <style name="PhysicianTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="windowActionBar">false</item> <!-- Disable ActionBar -->
+        <item name="windowNoTitle">true</item>    <!-- Remove the app title -->
+        <item name="colorPrimary">@color/colorPrimaryPhysician</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkPhysician</item>
+        <item name="colorAccent">@color/colorAccentPhysician</item>
+    </style>
+</resources>
