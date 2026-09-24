@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NUMAD24Fa_Group_2_Project</string>
+    <string name="app_name">BridgeCare</string>
     <string-array name="role_array">
         <item>Patient</item>
         <item>Physician</item>

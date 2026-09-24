@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "NUMAD24Fa_Group_2_Project"
+rootProject.name = "PatientPortalApp"
 include(":app")
  

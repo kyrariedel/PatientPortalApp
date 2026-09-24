@@ -26,7 +26,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/care_connect_image_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.NUMAD24Fa_Group_2_Project"
+        android:theme="@style/Theme.BridgeCare"
         tools:targetApi="31">
         <activity
             android:name=".AddTaskActivity"
@@ -54,14 +54,14 @@
         <activity
             android:name=".RegisterActivity"
             android:exported="false"
-            android:theme="@style/Theme.NUMAD24Fa_Group_2_Project" />
+            android:theme="@style/Theme.BridgeCare" />
         <activity
             android:name=".MainActivity"
             android:exported="false">
         </activity>
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="edu.northeastern.numad24fa_group_2_project"
+            android:authorities="com.bridgecare.app"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

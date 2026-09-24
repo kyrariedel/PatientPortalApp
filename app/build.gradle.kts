@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "edu.northeastern.numad24fa_group_2_project"
+    namespace = "com.bridgecare.app"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "edu.northeastern.numad24fa_group_2_project"
+        applicationId = "com.bridgecare.app"
         minSdk = 27
         targetSdk = 34
         versionCode = 1
