@@ -36,6 +36,14 @@ public interface IUserRepository {
     void logoutUser();
 
     /**
+     * Sends a Firebase password reset email to the given address.
+     *
+     * @param email    the account email
+     * @param listener the listener to call when the request completes
+     */
+    void sendPasswordResetEmail(String email, OnCompleteListener<Void> listener);
+
+    /**
      * Gets the user with the given user id.
      *
      * @param userId   the id of the user to get

@@ -15,4 +15,17 @@
     <string name="overview_tab">Overview</string>
     <string name="tasks_tab">Tasks</string>
     <string name="appointments_tab">Appointments</string>
+    <string name="error_fill_all_fields">Please fill out all fields</string>
+    <string name="error_invalid_email">Enter a valid email address</string>
+    <string name="error_password_too_short">Password must be at least %d characters</string>
+    <string name="error_select_dob">Please select a valid date of birth</string>
+    <string name="error_login_failed">Login failed: Invalid email or password</string>
+    <string name="error_user_data">Failed to retrieve user data</string>
+    <string name="error_register_failed">Failed to register. The email may already be in use.</string>
+    <string name="error_reset_email_required">Enter your email to reset your password</string>
+    <string name="reset_email_sent">Password reset email sent. Check your inbox.</string>
+    <string name="reset_email_failed">Could not send reset email. Check the address and try again.</string>
+    <string name="register_success">%1$s registered. Please log in, %2$s.</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="password_hint">Password (min 6 characters)</string>
 </resources>

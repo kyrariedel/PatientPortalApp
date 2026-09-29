@@ -3,9 +3,11 @@ package com.bridgecare.app;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
@@ -20,6 +22,7 @@ import com.bridgecare.app.models.Patient;
 import com.bridgecare.app.models.Physician;
 import com.bridgecare.app.models.User;
 import com.bridgecare.app.repositories.UserRepository;
+import com.bridgecare.app.utility.AuthValidator;
 import com.bridgecare.app.utility.DateUtils;
 import com.bridgecare.app.utility.UserSessionHelper;
 
@@ -29,6 +32,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText editTextFirstName, editTextLastName, editTextDob, editTextEmail, editTextPassword;
     private Spinner spinnerRole;
     private Button buttonRegister, toLoginButton;
+    private ProgressBar authProgressBar;
     private LocalDate dob;
     private UserSessionHelper userSessionHelper;
 
@@ -66,6 +70,7 @@ public class RegisterActivity extends AppCompatActivity {
         spinnerRole = findViewById(R.id.spinnerRole);
         buttonRegister = findViewById(R.id.buttonRegister);
         toLoginButton = findViewById(R.id.toLoginPage);
+        authProgressBar = findViewById(R.id.authProgressBar);
     }
 
     private void setupRoleSpinner() {
@@ -95,25 +100,36 @@ public class RegisterActivity extends AppCompatActivity {
         String lastName = editTextLastName.getText().toString().trim();
         String email = editTextEmail.getText().toString().trim();
         String dobString = editTextDob.getText().toString().trim();
-        String password = editTextPassword.getText().toString().trim();
+        String password = editTextPassword.getText().toString();
         String selectedRole = spinnerRole.getSelectedItem().toString();
 
-        if (validateInputs(firstName, lastName, dobString, email, password)) {
-            if ("Patient".equals(selectedRole)) {
-                createUser(new Patient(firstName, lastName, dob, email), password);
-            } else if ("Physician".equals(selectedRole)) {
-                createUser(new Physician(firstName, lastName, dob, email), password);
-            }
+        if (!validateInputs(firstName, lastName, dobString, email, password)) {
+            return;
+        }
+        if ("Patient".equals(selectedRole)) {
+            createUser(new Patient(firstName, lastName, dob, email), password);
+        } else if ("Physician".equals(selectedRole)) {
+            createUser(new Physician(firstName, lastName, dob, email), password);
         }
     }
 
     private boolean validateInputs(String firstName, String lastName, String dobString, String email, String password) {
         if (firstName.isEmpty() || lastName.isEmpty() || dobString.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.error_fill_all_fields, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (!AuthValidator.isValidEmail(email)) {
+            Toast.makeText(this, R.string.error_invalid_email, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (!AuthValidator.isValidPassword(password)) {
+            Toast.makeText(this,
+                    getString(R.string.error_password_too_short, AuthValidator.MIN_PASSWORD_LENGTH),
+                    Toast.LENGTH_SHORT).show();
             return false;
         }
         if (dob == null) {
-            Toast.makeText(this, "Please select a valid date of birth", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.error_select_dob, Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
@@ -125,13 +141,16 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void createUser(User user, String password) {
+        setBusy(true);
         userRepository.registerUser(user, password, task -> {
             if (task.isSuccessful()) {
-                String message = user.getRole() + " registered: Please Login." + user.getFullName();
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,
+                        getString(R.string.register_success, user.getRole(), user.getFullName()),
+                        Toast.LENGTH_SHORT).show();
                 navigateToLogin();
             } else {
-                Toast.makeText(this, "Failed to register (Email can be already used) ", Toast.LENGTH_SHORT).show();
+                setBusy(false);
+                Toast.makeText(this, R.string.error_register_failed, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -140,5 +159,17 @@ public class RegisterActivity extends AppCompatActivity {
         Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private void setBusy(boolean busy) {
+        if (authProgressBar != null) {
+            authProgressBar.setVisibility(busy ? View.VISIBLE : View.GONE);
+        }
+        if (buttonRegister != null) {
+            buttonRegister.setEnabled(!busy);
+        }
+        if (toLoginButton != null) {
+            toLoginButton.setEnabled(!busy);
+        }
     }
 }

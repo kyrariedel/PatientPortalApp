@@ -49,6 +49,11 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
+    public void sendPasswordResetEmail(String email, OnCompleteListener<Void> listener) {
+        FirebaseAuth.getInstance().sendPasswordResetEmail(email).addOnCompleteListener(listener);
+    }
+
+    @Override
     public void logoutUser() {
         FirebaseAuth.getInstance().signOut();
     }
