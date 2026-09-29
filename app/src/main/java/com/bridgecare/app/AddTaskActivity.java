@@ -1,7 +1,5 @@
 package com.bridgecare.app;
 
-import static java.security.AccessController.getContext;
-
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;

@@ -87,12 +87,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         }
         ImageView taskImageView = holder.getTaskImageView();
         String taskImage = task.getTaskImageUrl();
-        if (task.getTaskImageUrl() != null && !task.getTaskImageUrl().isEmpty()) {
-            if (taskImage.length() < 50) {
-                loadImageFromFirebase(task.getTaskImageUrl(), taskImageView);
-            } else {
-                loadImageFromFirebaseWithUrl(task.getTaskImageUrl(), taskImageView);
-            }
+        if (taskImage != null && !taskImage.isEmpty()) {
+            loadTaskImage(taskImage, taskImageView);
             taskImageView.setVisibility(View.VISIBLE);
         } else {
             taskImageView.setVisibility(View.GONE);
@@ -139,15 +135,19 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         return taskList.size();
     }
 
-    // TODO: Possibly update this to other method below.
-    private void loadImageFromFirebase(String imagePath, final ImageView imageView) {
-        // Reference to Firebase Storage
-        FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
-        StorageReference storageReference = firebaseStorage.getReference().child(imagePath);
+    private void loadTaskImage(String image, final ImageView imageView) {
+        if (image.startsWith("http://") || image.startsWith("https://")) {
+            Glide.with(imageView.getContext())
+                    .load(image)
+                    .override(600, 200)
+                    .fitCenter()
+                    .into(imageView);
+            return;
+        }
 
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(image);
         storageReference.getDownloadUrl().addOnSuccessListener(uri -> {
-            Glide
-                    .with(imageView.getContext())
+            Glide.with(imageView.getContext())
                     .load(uri.toString())
                     .override(600, 200)
                     .fitCenter()
@@ -155,15 +155,5 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         }).addOnFailureListener(e -> {
             Log.e("FirebaseStorage", "Error fetching download URL", e);
         });
-    }
-
-    //TODO: change to this method possibly.
-    private void loadImageFromFirebaseWithUrl(String imageUrl, final ImageView imageView) {
-            Glide
-                    .with(imageView.getContext())
-                    .load(imageUrl)
-                    .override(600, 200)
-                    .fitCenter()
-                    .into(imageView);
     }
 }
