@@ -14,14 +14,13 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
 
 import com.bridgecare.app.R;
-import com.bridgecare.app.adapters.TaskAdapter;
 import com.bridgecare.app.models.Task;
 import com.bridgecare.app.AddTaskActivity;
 import com.bridgecare.app.utility.UserSessionHelper;
@@ -41,11 +40,10 @@ public class PatientTasksFragment extends AbstractUserTasksFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            patientId = getArguments().getString("patientId");
-            if (patientId != null) {
-                fetchTasksForPatient(patientId);
+            String argPatientId = getArguments().getString("patientId");
+            if (argPatientId != null) {
+                patientId = argPatientId;
             }
-            isPhysician = getArguments().getBoolean("isPhysician", false);
         }
     }
 
@@ -54,17 +52,19 @@ public class PatientTasksFragment extends AbstractUserTasksFragment {
         return R.id.recyclerViewTasks;
     }
 
-    // TODO: Need to change the path like "tasks/patient"
     @Override
     protected String getFirebaseTaskPath() {
         return "tasks";
     }
 
+    @Override
     protected void fetchTasksFromFirebase() {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(getFirebaseTaskPath());
-        // isolate task by id
-        databaseReference.orderByChild("patientAssignedId").equalTo(patientId)
-                .addValueEventListener(new ValueEventListener() {
+        Query query = FirebaseDatabase.getInstance()
+                .getReference(getFirebaseTaskPath())
+                .orderByChild("patientAssignedId")
+                .equalTo(patientId);
+        listenerRegistrar.removeAll();
+        listenerRegistrar.add(query, new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 taskList.clear();
@@ -74,50 +74,20 @@ public class PatientTasksFragment extends AbstractUserTasksFragment {
                         taskList.add(taskItem);
                     }
                 }
-
-                // sort tasks by desc order
-                        taskList.sort((task1, task2) -> {
-                            if (task1.getStartDate() == null || task2.getStartDate() == null) return 0;
-                            return task2.getStartDate().compareTo(task1.getStartDate());
-                        });
-                adapter.notifyDataSetChanged();
+                taskList.sort((task1, task2) -> {
+                    if (task1.getStartDate() == null || task2.getStartDate() == null) return 0;
+                    return task2.getStartDate().compareTo(task1.getStartDate());
+                });
+                notifyTasksChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Failed to load tasks: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Failed to load tasks: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
-    }
-
-    private void fetchTasksForPatient(String patientId) {
-        DatabaseReference taskRef = FirebaseDatabase.getInstance().getReference("tasks");
-        taskRef.orderByChild("patientAssignedId").equalTo(patientId)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        taskList.clear();
-                        for (DataSnapshot taskSnapshot : snapshot.getChildren()) {
-                            String taskId = taskSnapshot.child("taskId").getValue(String.class);
-                            String patientAssignedId = taskSnapshot.child("patientAssignedId").getValue(String.class);
-                            String physicianAssignedId = taskSnapshot.child("physicianAssignedId").getValue(String.class);
-
-                            Task task = new Task();
-                            task.setTaskId(taskId);
-                            task.setPatientAssignedId(patientAssignedId);
-                            task.setPhysicianAssignedId(physicianAssignedId);
-
-                            taskList.add(task);
-                        }
-                        adapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(getContext(), "Failed to load tasks: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
     }
 
     @Override
@@ -164,21 +134,8 @@ public class PatientTasksFragment extends AbstractUserTasksFragment {
         View view = inflater.inflate(R.layout.fragment_patient_tasks, container, false);
         initRecyclerView(view);
 
-        if (getArguments() != null) {
-            patientId = getArguments().getString("patientId");
-        }
-
-        fetchTasksFromFirebase();
-
         FloatingActionButton fabNewTask = view.findViewById(R.id.addTaskBtn);
-//        fabNewTask.setOnClickListener(v -> {
-//            // Navigate to create new task activity or show dialog
-//            Intent intent = new Intent(getContext(), AddTaskActivity.class);
-//            startActivity(intent);
-//        });
-
         if (isPhysician) {
-            // remove btn if physician viewing
             fabNewTask.setVisibility(View.GONE);
         } else {
             fabNewTask.setVisibility(View.VISIBLE);
@@ -188,5 +145,11 @@ public class PatientTasksFragment extends AbstractUserTasksFragment {
             });
         }
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        fetchTasksFromFirebase();
     }
 }

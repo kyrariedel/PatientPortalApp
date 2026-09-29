@@ -10,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -35,14 +36,15 @@ import com.bridgecare.app.repositories.AppointmentRepository;
 
 public class AppointmentPhysicianCreateDialogHelper {
     private EditText etAppointmentName, etAppointmentDate, etAppointmentTime, etNotes;
-    private Spinner spPatients;
+    private Spinner spAssignee;
+    private TextView tvAssigneeLabel;
     private final Context context;
     private final AppointmentRepository appointmentRepository;
     private LocalDate selectedDate;
     private LocalTime selectedTime;
     private final UserSessionHelper userSessionHelper;
-    private final Map<String, String> patientIdMap = new HashMap<>();
-    private String selectedPatientId;
+    private final Map<String, String> assigneeIdMap = new HashMap<>();
+    private String selectedAssigneeId;
 
     public AppointmentPhysicianCreateDialogHelper(Context context, AppointmentRepository appointmentRepository,
                                                   UserSessionHelper userSessionHelper) {
@@ -57,7 +59,7 @@ public class AppointmentPhysicianCreateDialogHelper {
 
         initViews(dialogView);
         setupListeners();
-        populatePatientSpinner();
+        populateAssigneeSpinner();
 
         new AlertDialog.Builder(context)
                 .setTitle("Create New Appointment")
@@ -69,46 +71,59 @@ public class AppointmentPhysicianCreateDialogHelper {
 
     }
 
-    private void populatePatientSpinner() {
-        FirebaseDatabase.getInstance().getReference("users")
-                .orderByChild("role").equalTo("Patient")
-                .addListenerForSingleValueEvent(createPatientSpinnerListener());
+    private boolean isCreatedByPatient() {
+        return "Patient".equals(userSessionHelper.getRole());
     }
 
-    private ValueEventListener createPatientSpinnerListener() {
+    private void populateAssigneeSpinner() {
+        String roleToLoad = isCreatedByPatient() ? "Physician" : "Patient";
+        FirebaseDatabase.getInstance().getReference("users")
+                .orderByChild("role").equalTo(roleToLoad)
+                .addListenerForSingleValueEvent(createAssigneeSpinnerListener());
+    }
+
+    private ValueEventListener createAssigneeSpinnerListener() {
         return new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<String> patientNames = new ArrayList<>();
-                patientIdMap.clear();
+                List<String> names = new ArrayList<>();
+                assigneeIdMap.clear();
+                boolean createdByPatient = isCreatedByPatient();
                 for (DataSnapshot userSnapshot : snapshot.getChildren()) {
                     String id = userSnapshot.child("id").getValue(String.class);
-                    String name = userSnapshot.child("fullName").getValue(String.class); // <---- You can change this to get the full name of the patient.
-                    patientNames.add(name);
-                    patientIdMap.put(name, id);
+                    if (id == null) {
+                        id = userSnapshot.getKey();
+                    }
+                    String name = userSnapshot.child("fullName").getValue(String.class);
+                    if (name == null) {
+                        continue;
+                    }
+                    String displayName = createdByPatient ? "Dr. " + name : name;
+                    names.add(displayName);
+                    assigneeIdMap.put(displayName, id);
                 }
-                setupSpinnerAdapter(patientNames);
+                setupSpinnerAdapter(names);
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                showToast("Failed to load patients.");
+                showToast(isCreatedByPatient() ? "Failed to load physicians." : "Failed to load patients.");
             }
         };
     }
 
-    private void setupSpinnerAdapter(List<String> physicianNames) {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, physicianNames);
+    private void setupSpinnerAdapter(List<String> names) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, names);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spPatients.setAdapter(adapter);
-        spPatients.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spAssignee.setAdapter(adapter);
+        spAssignee.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedPatientId = patientIdMap.get(parent.getItemAtPosition(position).toString());
+                selectedAssigneeId = assigneeIdMap.get(parent.getItemAtPosition(position).toString());
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                selectedPatientId = null;
+                selectedAssigneeId = null;
             }
         });
     }
@@ -123,7 +138,9 @@ public class AppointmentPhysicianCreateDialogHelper {
         etAppointmentDate = dialogView.findViewById(R.id.etAppointmentDate);
         etAppointmentTime = dialogView.findViewById(R.id.etAppointmentTime);
         etNotes = dialogView.findViewById(R.id.etNotes);
-        spPatients = dialogView.findViewById(R.id.spPatients);
+        spAssignee = dialogView.findViewById(R.id.spPatients);
+        tvAssigneeLabel = dialogView.findViewById(R.id.tvAssigneeLabel);
+        tvAssigneeLabel.setText(isCreatedByPatient() ? R.string.select_a_physician : R.string.select_a_patient);
     }
 
     private void showTimePickerDialog() {
@@ -163,13 +180,22 @@ public class AppointmentPhysicianCreateDialogHelper {
         }
 
         String appointmentName = etAppointmentName.getText().toString().trim();
-        String physicianId = userSessionHelper.getUserId();
         String notes = etNotes.getText().toString();
         LocalDateTime appointmentDateTime = LocalDateTime.of(selectedDate, selectedTime);
         Long combinedDateTimeInMillis  = appointmentDateTime
                 .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
-        Appointment appointment = new Appointment(combinedDateTimeInMillis, appointmentName, notes, physicianId, selectedPatientId);
+        String physicianId;
+        String patientId;
+        if (isCreatedByPatient()) {
+            patientId = userSessionHelper.getUserId();
+            physicianId = selectedAssigneeId;
+        } else {
+            physicianId = userSessionHelper.getUserId();
+            patientId = selectedAssigneeId;
+        }
+
+        Appointment appointment = new Appointment(combinedDateTimeInMillis, appointmentName, notes, physicianId, patientId);
         saveAppointment(appointment);
 
     }
@@ -181,9 +207,9 @@ public class AppointmentPhysicianCreateDialogHelper {
 
     private boolean isInputValid() {
         return !etAppointmentName.getText().toString().trim().isEmpty()
-                && etAppointmentDate != null
-                && etAppointmentTime != null
-                && selectedPatientId != null;
+                && selectedDate != null
+                && selectedTime != null
+                && selectedAssigneeId != null;
     }
 
 

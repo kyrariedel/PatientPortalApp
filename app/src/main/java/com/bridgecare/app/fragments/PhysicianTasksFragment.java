@@ -11,8 +11,8 @@ import androidx.annotation.Nullable;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -47,8 +47,9 @@ public class PhysicianTasksFragment extends AbstractUserTasksFragment {
     }
 
     private void fetchPatientsFromFirebase() {
-        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
-        usersRef.addValueEventListener(new ValueEventListener() {
+        Query usersRef = FirebaseDatabase.getInstance().getReference("users");
+        listenerRegistrar.removeAll();
+        listenerRegistrar.add(usersRef, new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 patientList = new ArrayList<>();
@@ -71,12 +72,14 @@ public class PhysicianTasksFragment extends AbstractUserTasksFragment {
                         }
                     }
                 }
-                adapter.notifyDataSetChanged();
+                notifyTasksChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Failed to load patients: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Failed to load patients: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -87,8 +90,9 @@ public class PhysicianTasksFragment extends AbstractUserTasksFragment {
     }
 
     private void fetchTasksForPatient(String patientId) {
-        DatabaseReference taskRef = FirebaseDatabase.getInstance().getReference("tasks").child(patientId);
-        taskRef.addValueEventListener(new ValueEventListener() {
+        Query taskRef = FirebaseDatabase.getInstance().getReference("tasks").child(patientId);
+        listenerRegistrar.removeAll();
+        listenerRegistrar.add(taskRef, new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 taskList.clear();
@@ -99,12 +103,14 @@ public class PhysicianTasksFragment extends AbstractUserTasksFragment {
                         taskList.add(task);
                     }
                 }
-                adapter.notifyDataSetChanged();
+                notifyTasksChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Failed to load tasks: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Failed to load tasks: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -114,7 +120,14 @@ public class PhysicianTasksFragment extends AbstractUserTasksFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_physician_tasks, container, false);
         initRecyclerView(view);
-        fetchPatientsFromFirebase();
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (showingPatients) {
+            fetchPatientsFromFirebase();
+        }
     }
 }

@@ -1,6 +1,5 @@
 package com.bridgecare.app.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,8 +12,8 @@ import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 
@@ -34,54 +33,47 @@ public class PatientAppointmentsFragment extends AbstractUserAppointmentsFragmen
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     protected int getRecyclerViewId() {
         return R.id.recyclerViewAppointments;
     }
 
-
-    protected String getFirebaseAppointmentsPath() {
-        return "appointments";
-    }
-
+    @Override
     protected void fetchAppointments() {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(getFirebaseAppointmentsPath());
-        // isolate task by id
-        databaseReference.orderByChild("patientAssignedId").equalTo(patientId)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        appointmentList.clear();
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            Appointment appointmentItem = parseAppointment(dataSnapshot);
-                            if (appointmentItem != null) {
-                                appointmentList.add(appointmentItem);
-                            }
-                        }
-
-                        // sort tasks by desc order
-                        appointmentList.sort((appt1, appt2) -> {
-                            long now = System.currentTimeMillis();
-                            if (appt1.getAppointmentDateAndTime() == null || appt2.getAppointmentDateAndTime() == null) return 0;
-                            boolean isAppt1Past = appt1.getAppointmentDateAndTime() < now;
-                            boolean isAppt2Past = appt2.getAppointmentDateAndTime() < now;
-                            if (isAppt1Past && !isAppt2Past) return 1;  // Past appointments go to the bottom
-                            if (!isAppt1Past && isAppt2Past) return -1; // Future appointments go to the top
-                            return appt1.getAppointmentDateAndTime().compareTo(appt2.getAppointmentDateAndTime());
-                        });
-                        adapter.notifyDataSetChanged();
+        Query query = FirebaseDatabase.getInstance()
+                .getReference("appointments")
+                .orderByChild("patientAssignedId")
+                .equalTo(patientId);
+        listenerRegistrar.removeAll();
+        listenerRegistrar.add(query, new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                appointmentList.clear();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Appointment appointmentItem = parseAppointment(dataSnapshot);
+                    if (appointmentItem != null) {
+                        appointmentList.add(appointmentItem);
                     }
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(getContext(), "Failed to load tasks: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-
-                    }
+                appointmentList.sort((appt1, appt2) -> {
+                    long now = System.currentTimeMillis();
+                    if (appt1.getAppointmentDateAndTime() == null || appt2.getAppointmentDateAndTime() == null) return 0;
+                    boolean isAppt1Past = appt1.getAppointmentDateAndTime() < now;
+                    boolean isAppt2Past = appt2.getAppointmentDateAndTime() < now;
+                    if (isAppt1Past && !isAppt2Past) return 1;
+                    if (!isAppt1Past && isAppt2Past) return -1;
+                    return appt1.getAppointmentDateAndTime().compareTo(appt2.getAppointmentDateAndTime());
                 });
+                notifyAppointmentsChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Failed to load appointments: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     protected Appointment parseAppointment(DataSnapshot snapshot) {
@@ -111,8 +103,12 @@ public class PatientAppointmentsFragment extends AbstractUserAppointmentsFragmen
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_patient_appointments, container, false);
         initRecyclerView(view);
-        fetchAppointments();
-
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        fetchAppointments();
     }
 }

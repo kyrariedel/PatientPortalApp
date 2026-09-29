@@ -12,13 +12,9 @@ import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.bridgecare.app.R;
 import com.bridgecare.app.models.Appointment;
@@ -52,39 +48,43 @@ public class PhysicianAppointmentsFragment extends AbstractUserAppointmentsFragm
         return "appointments";
     }
 
+    @Override
     protected void fetchAppointments() {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(getFirebaseAppointmentsPath());
-        // isolate task by id
-        databaseReference.orderByChild("physicianAssignedId").equalTo(physicianId)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        appointmentList.clear();
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            Appointment appointmentItem = parseAppointment(dataSnapshot);
-                            if (appointmentItem != null) {
-                                appointmentList.add(appointmentItem);
-                            }
-                        }
-
-                        // sort tasks by desc order
-                        appointmentList.sort((appt1, appt2) -> {
-                            long now = System.currentTimeMillis();
-                            if (appt1.getAppointmentDateAndTime() == null || appt2.getAppointmentDateAndTime() == null) return 0;
-                            boolean isAppt1Past = appt1.getAppointmentDateAndTime() < now;
-                            boolean isAppt2Past = appt2.getAppointmentDateAndTime() < now;
-                            if (isAppt1Past && !isAppt2Past) return 1;  // Past appointments go to the bottom
-                            if (!isAppt1Past && isAppt2Past) return -1; // Future appointments go to the top
-                            return appt1.getAppointmentDateAndTime().compareTo(appt2.getAppointmentDateAndTime());
-                        });
-                        adapter.notifyDataSetChanged();
+        Query query = FirebaseDatabase.getInstance()
+                .getReference(getFirebaseAppointmentsPath())
+                .orderByChild("physicianAssignedId")
+                .equalTo(physicianId);
+        listenerRegistrar.removeAll();
+        listenerRegistrar.add(query, new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                appointmentList.clear();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Appointment appointmentItem = parseAppointment(dataSnapshot);
+                    if (appointmentItem != null) {
+                        appointmentList.add(appointmentItem);
                     }
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(getContext(), "Failed to load tasks: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+                appointmentList.sort((appt1, appt2) -> {
+                    long now = System.currentTimeMillis();
+                    if (appt1.getAppointmentDateAndTime() == null || appt2.getAppointmentDateAndTime() == null) return 0;
+                    boolean isAppt1Past = appt1.getAppointmentDateAndTime() < now;
+                    boolean isAppt2Past = appt2.getAppointmentDateAndTime() < now;
+                    if (isAppt1Past && !isAppt2Past) return 1;
+                    if (!isAppt1Past && isAppt2Past) return -1;
+                    return appt1.getAppointmentDateAndTime().compareTo(appt2.getAppointmentDateAndTime());
                 });
+                notifyAppointmentsChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Failed to load appointments: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     protected Appointment parseAppointment(DataSnapshot snapshot) {
@@ -120,7 +120,12 @@ public class PhysicianAppointmentsFragment extends AbstractUserAppointmentsFragm
                     appointmentRepository , userSessionHelper);
             dialogHelper.showCreateAppointmentDialog();
         });
-        fetchAppointments();
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        fetchAppointments();
     }
 }

@@ -16,6 +16,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import java.util.List;
 import com.bridgecare.app.R;
 import com.bridgecare.app.adapters.PatientAdapter;
 import com.bridgecare.app.models.Patient;
+import com.bridgecare.app.utility.FirebaseListenerRegistrar;
 import com.bridgecare.app.utility.UserSessionHelper;
 
 public class PhysicianPatientsFragment extends Fragment {
@@ -33,6 +35,9 @@ public class PhysicianPatientsFragment extends Fragment {
     private List<Patient> patientList;
     private final UserSessionHelper userSessionHelper;
     private final String physicianId;
+    private final FirebaseListenerRegistrar listenerRegistrar = new FirebaseListenerRegistrar();
+    private final List<String> assignedPatientIds = new ArrayList<>();
+    private DataSnapshot latestUsersSnapshot;
 
     public PhysicianPatientsFragment(UserSessionHelper userSessionHelper) {
         this.userSessionHelper = userSessionHelper;
@@ -56,57 +61,86 @@ public class PhysicianPatientsFragment extends Fragment {
         patientAdapter = new PatientAdapter(patientList, patient -> showTaskDetails(patient));
 
         recyclerView.setAdapter(patientAdapter);
-        fetchPatientsFromFirebase();
-
         return view;
     }
 
-    private void fetchPatientsFromFirebase() {
-        DatabaseReference taskRef = FirebaseDatabase.getInstance().getReference("tasks");
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users");
-
-        taskRef.orderByChild("physicianAssignedId").equalTo(physicianId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        patientList.clear();
-                        List<String> patientIds = new ArrayList<>();
-                        for (DataSnapshot taskSnapshot: snapshot.getChildren()) {
-                            String patientId = taskSnapshot.child("patientAssignedId").getValue(String.class);
-                            if (patientId != null && !patientIds.contains(patientId)) {
-                                patientIds.add(patientId);
-                            }
-                        }
-                        fetchPatientDetails(userRef, patientIds);
-                    }
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(getContext(), "Failed to load tasks: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+    @Override
+    public void onStart() {
+        super.onStart();
+        fetchPatientsFromFirebase();
     }
 
-    private void fetchPatientDetails(DatabaseReference userRef, List<String> patientIds) {
-        userRef.addValueEventListener(new ValueEventListener() {
+    @Override
+    public void onStop() {
+        listenerRegistrar.removeAll();
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroyView() {
+        listenerRegistrar.removeAll();
+        super.onDestroyView();
+    }
+
+    private void fetchPatientsFromFirebase() {
+        listenerRegistrar.removeAll();
+        Query tasksQuery = FirebaseDatabase.getInstance()
+                .getReference("tasks")
+                .orderByChild("physicianAssignedId")
+                .equalTo(physicianId);
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users");
+
+        listenerRegistrar.add(tasksQuery, new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (String patientId : patientIds) {
-                    DataSnapshot userSnapshot = snapshot.child(patientId);
-                    if (userSnapshot.exists()) {
-                        Patient patient = new Patient();
-                        patient.setId(patientId);
-                        patient.setFullName(userSnapshot.child("fullName").getValue(String.class));
-                        patientList.add(patient);
+                assignedPatientIds.clear();
+                for (DataSnapshot taskSnapshot: snapshot.getChildren()) {
+                    String patientId = taskSnapshot.child("patientAssignedId").getValue(String.class);
+                    if (patientId != null && !assignedPatientIds.contains(patientId)) {
+                        assignedPatientIds.add(patientId);
                     }
                 }
-                patientAdapter.notifyDataSetChanged();
+                rebuildPatientList();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Failed to load tasks: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        listenerRegistrar.add(userRef, new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                latestUsersSnapshot = snapshot;
+                rebuildPatientList();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Failed to load patients: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Failed to load patients: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
+    }
+
+    private void rebuildPatientList() {
+        if (patientList == null || patientAdapter == null || latestUsersSnapshot == null) {
+            return;
+        }
+        patientList.clear();
+        for (String patientId : assignedPatientIds) {
+            DataSnapshot userSnapshot = latestUsersSnapshot.child(patientId);
+            if (userSnapshot.exists()) {
+                Patient patient = new Patient();
+                patient.setId(patientId);
+                patient.setFullName(userSnapshot.child("fullName").getValue(String.class));
+                patientList.add(patient);
+            }
+        }
+        patientAdapter.notifyDataSetChanged();
     }
 
     private void showTaskDetails(Patient patient) {

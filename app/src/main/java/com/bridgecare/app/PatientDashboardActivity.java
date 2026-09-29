@@ -99,8 +99,9 @@ public class PatientDashboardActivity extends AppCompatActivity {
 
     private String getTabTitle(int position) {
         switch (position) {
-            case 0: return "Tasks";
-            case 1: return "Appointments";
+            case 0: return getString(R.string.overview_tab);
+            case 1: return getString(R.string.tasks_tab);
+            case 2: return getString(R.string.appointments_tab);
             default: return "Tab " + position;
         }
     }

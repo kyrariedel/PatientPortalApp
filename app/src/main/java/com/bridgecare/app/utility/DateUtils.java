@@ -1,7 +1,9 @@
 package com.bridgecare.app.utility;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 public class DateUtils {
@@ -14,6 +16,16 @@ public class DateUtils {
 
     public static String formatDateDayTime(LocalDateTime dateTime) {
         return dateTime != null ? dateTime.format(DATE_DAY_TIME_FORMATTER) : "No date, day and time available";
+    }
+
+    public static String formatDateDayTime(Long epochMilli) {
+        if (epochMilli == null) {
+            return "No date, day and time available";
+        }
+        LocalDateTime dateTime = Instant.ofEpochMilli(epochMilli)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+        return formatDateDayTime(dateTime);
     }
 
     public static String parseDate(String month, int day, int year) {

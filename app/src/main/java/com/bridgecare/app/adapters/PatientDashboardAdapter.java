@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.bridgecare.app.fragments.PatientAppointmentsFragment;
+import com.bridgecare.app.fragments.PatientOverviewFragment;
 import com.bridgecare.app.fragments.PatientTasksFragment;
 import com.bridgecare.app.utility.UserSessionHelper;
 
@@ -22,17 +23,19 @@ public class PatientDashboardAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         switch (position) {
             case 0:
-                return new PatientTasksFragment(userSessionHelper);
+                return new PatientOverviewFragment();
             case 1:
+                return new PatientTasksFragment(userSessionHelper);
+            case 2:
                 return new PatientAppointmentsFragment(userSessionHelper);
             default:
-                return new PatientTasksFragment(userSessionHelper);
+                return new PatientOverviewFragment();
         }
     }
 
     @Override
     public int getItemCount() {
-        return 2;
+        return 3;
     }
 }
 

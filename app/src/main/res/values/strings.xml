@@ -4,4 +4,15 @@
         <item>Patient</item>
         <item>Physician</item>
     </string-array>
+    <string name="empty_tasks">No tasks yet</string>
+    <string name="empty_appointments">No appointments yet</string>
+    <string name="no_upcoming_appointment">No upcoming appointments</string>
+    <string name="no_tasks_yet">No tasks yet</string>
+    <string name="all_tasks_complete">All tasks complete</string>
+    <string name="task_progress_summary">%1$d of %2$d tasks complete</string>
+    <string name="select_a_physician">Select a Physician</string>
+    <string name="select_a_patient">Select a Patient</string>
+    <string name="overview_tab">Overview</string>
+    <string name="tasks_tab">Tasks</string>
+    <string name="appointments_tab">Appointments</string>
 </resources>
