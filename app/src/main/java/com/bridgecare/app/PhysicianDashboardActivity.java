@@ -16,18 +16,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.database.DataSnapshot;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.bridgecare.app.adapters.PhysicianDashboardAdapter;
-import com.bridgecare.app.repositories.AppointmentRepository;
 import com.bridgecare.app.repositories.UserRepository;
-import com.bridgecare.app.utility.AppointmentPhysicianCreateDialogHelper;
-import com.bridgecare.app.utility.TaskPatientCreateDialogHelper;
 import com.bridgecare.app.utility.UserSessionHelper;
 import com.bridgecare.app.utility.DateUtils;
 
@@ -36,14 +33,13 @@ public class PhysicianDashboardActivity extends AppCompatActivity {
     private static final String TAG = "PhysicianDashboardActivity";
 
     private TextView tvPhysicianName;
-    private FloatingActionButton addAppointmentButton;
+    private TextView tvPhysicianDob;
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
     private UserRepository userRepository;
     private UserSessionHelper userSessionHelper;
-    private AppointmentRepository appointmentRepository;
 
-    private Button logoutButton2;
+    private Button logoutButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,14 +102,14 @@ public class PhysicianDashboardActivity extends AppCompatActivity {
 
     private void initViews() {
         tvPhysicianName = findViewById(R.id.tvPhysicianName);
-        logoutButton2 = findViewById(R.id.logoutButton2);
+        tvPhysicianDob = findViewById(R.id.tvPhysicianDob);
+        logoutButton = findViewById(R.id.logoutButton);
         tabLayout = findViewById(R.id.physician_tab_layout);
         viewPager = findViewById(R.id.physician_view_pager);
     }
 
     private void initDatabase() {
         userRepository = new UserRepository();
-        appointmentRepository = new AppointmentRepository();
         userRepository.getUser(userSessionHelper.getUserId(), task -> {
             if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
                 updatePhysicianDetails(task.getResult());
@@ -124,38 +120,53 @@ public class PhysicianDashboardActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        logoutButton2.setOnClickListener(v -> showLogoutDialog());
+        logoutButton.setOnClickListener(v -> showLogoutDialog());
     }
 
-    // TODO: need to handle dob
     private void updatePhysicianDetails(DataSnapshot dataSnapshot) {
         String fullName = dataSnapshot.child("fullName").getValue(String.class);
-
         if (fullName == null) {
-            fullName = "Unknown Name";
+            fullName = getString(R.string.unknown_name);
         }
-
-        updateUI(fullName);
+        updateUI(fullName, parseDob(dataSnapshot.child("dob")));
     }
 
-    private void updateUI(String name) {
-        tvPhysicianName.setText(String.format("Dr. %s", name));
+    private LocalDate parseDob(DataSnapshot dobSnapshot) {
+        if (dobSnapshot == null || !dobSnapshot.exists()) {
+            return null;
+        }
+        Integer year = dobSnapshot.child("year").getValue(Integer.class);
+        Integer month = dobSnapshot.child("monthValue").getValue(Integer.class);
+        Integer day = dobSnapshot.child("dayOfMonth").getValue(Integer.class);
+        if (year != null && month != null && day != null) {
+            return LocalDate.of(year, month, day);
+        }
+        return null;
+    }
+
+    private void updateUI(String name, LocalDate dob) {
+        tvPhysicianName.setText(getString(R.string.physician_name_format, name));
+        if (dob != null) {
+            tvPhysicianDob.setText(getString(R.string.physician_dob_format, DateUtils.formatDate(dob)));
+        } else {
+            tvPhysicianDob.setText(R.string.physician_dob_unavailable);
+        }
     }
 
     private String getTabTitle(int position) {
         switch (position) {
-            case 0: return "Patients";
-            case 1: return "Appointments";
-            default: return "Tab " + position;
+            case 0: return getString(R.string.patients_tab);
+            case 1: return getString(R.string.appointments_tab);
+            default: return getString(R.string.appointments_tab);
         }
     }
 
     private void showLogoutDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Logout")
-                .setMessage("Are you sure you want to logout?")
-                .setPositiveButton("Yes", (dialog, which) -> logout())
-                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .setTitle(R.string.logout_title)
+                .setMessage(R.string.logout_message)
+                .setPositiveButton(R.string.yes, (dialog, which) -> logout())
+                .setNegativeButton(R.string.no, (dialog, which) -> dialog.dismiss())
                 .create()
                 .show();
     }

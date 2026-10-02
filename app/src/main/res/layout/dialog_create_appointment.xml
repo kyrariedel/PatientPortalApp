@@ -10,40 +10,40 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Appointment Title" />
+        android:text="@string/appointment_title" />
 
     <EditText
         android:id="@+id/etAppointmentName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Add Appointment Title"
+        android:hint="@string/appointment_title_hint"
         android:inputType="text" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Date of Appointment" />
+        android:text="@string/date_of_appointment" />
 
     <EditText
         android:id="@+id/etAppointmentDate"
         android:focusable="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="YYYY-MM-DD"
+        android:hint="@string/date_hint"
         android:inputType="date" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Time of Appointment" />
+        android:text="@string/time_of_appointment" />
 
     <EditText
         android:id="@+id/etAppointmentTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Hours:Minutes"
+        android:hint="@string/time_hint"
         android:focusable="false"
         android:inputType="time" />
 
@@ -51,13 +51,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Notes" />
+        android:text="@string/notes" />
 
     <EditText
         android:id="@+id/etNotes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Add Notes (Optional)"
+        android:hint="@string/notes_hint"
         android:inputType="text" />
 
     <TextView
@@ -65,11 +65,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Select a Patient" />
+        android:text="@string/select_a_patient" />
 
     <Spinner
         android:id="@+id/spPatients"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Select Patient"/>
+        android:hint="@string/select_a_patient"/>
 </LinearLayout>

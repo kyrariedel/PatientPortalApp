@@ -21,18 +21,30 @@
             android:id="@+id/tvPhysicianName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Name: Physician Name"
-            android:textColor="@android:color/black"
+            android:text="@string/physician_name_placeholder"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="20sp"
-            app:layout_constraintEnd_toStartOf="@+id/logoutButton2"
+            app:layout_constraintEnd_toStartOf="@+id/logoutButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/logoutButton2"
+        <TextView
+            android:id="@+id/tvPhysicianDob"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Logout"
+            android:layout_marginTop="4dp"
+            android:text="@string/physician_dob_unavailable"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toStartOf="@+id/logoutButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvPhysicianName" />
+
+        <Button
+            android:id="@+id/logoutButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/logout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

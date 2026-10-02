@@ -10,58 +10,58 @@
         android:id="@+id/etTaskName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Task Title"
+        android:hint="@string/task_title_hint"
         android:inputType="text" />
 
     <EditText
         android:id="@+id/etTaskDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Task Description"
+        android:hint="@string/task_description_hint"
         android:inputType="textMultiLine" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Start Date" />
+        android:text="@string/start_date" />
 
     <EditText
         android:id="@+id/etStartDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="YYYY-MM-DD"
+        android:hint="@string/date_hint"
         android:inputType="date" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="End Date" />
+        android:text="@string/end_date" />
 
     <EditText
         android:id="@+id/etEndDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="YYYY-MM-DD"
+        android:hint="@string/date_hint"
         android:inputType="date" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Select a Physician" />
+        android:text="@string/select_a_physician" />
 
     <Spinner
         android:id="@+id/spPhysicians"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Select Physician"/>
+        android:hint="@string/select_a_physician"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Add a Photo to the Task" />
+        android:text="@string/add_photo_to_task" />
 
     <!-- Horizontal LinearLayout to contain the buttons -->
     <LinearLayout
@@ -75,7 +75,7 @@
             android:id="@+id/btnTakePhoto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Take Photo"
+            android:text="@string/take_photo"
             android:backgroundTint="#7932a8"
             android:textColor="@android:color/white"
             android:textSize="18sp"
@@ -86,7 +86,7 @@
             android:id="@+id/btnSelectImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Select Image"
+            android:text="@string/select_image"
             android:backgroundTint="#7932a8"
             android:textColor="@android:color/white"
             app:cornerRadius="5dp"
@@ -99,7 +99,7 @@
         android:layout_height="wrap_content"
         android:backgroundTint="#7932a8"
         app:cornerRadius="5dp"
-        android:text="ADD TASK"/>
+        android:text="@string/add_task"/>
 
     <ImageView
         android:id="@+id/IVPreviewImage"
@@ -109,6 +109,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:visibility="gone"
+        android:contentDescription="@string/cd_preview_image"
         android:src="@android:drawable/ic_menu_camera"/>
 
 </LinearLayout>

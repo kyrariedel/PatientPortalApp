@@ -108,10 +108,10 @@ public class PatientDashboardActivity extends AppCompatActivity {
 
     private void showLogoutDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Logout")
-                .setMessage("Are you sure you want to logout?")
-                .setPositiveButton("Yes", (dialog, which) -> logout())
-                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .setTitle(R.string.logout_title)
+                .setMessage(R.string.logout_message)
+                .setPositiveButton(R.string.yes, (dialog, which) -> logout())
+                .setNegativeButton(R.string.no, (dialog, which) -> dialog.dismiss())
                 .create()
                 .show();
     }

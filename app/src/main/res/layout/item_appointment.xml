@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Title:"
+        android:text="@string/label_title"
         android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Appointment ID"
+        android:text="@string/appointment_title_placeholder"
         app:layout_constraintStart_toEndOf="@+id/labelAppointmentId"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="Status:"
+        android:text="@string/label_status"
         android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/appointmentStatus"
@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="(Upcoming / Past)"
+        android:text="@string/appointment_status_placeholder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -55,7 +55,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Physician:"
+        android:text="@string/label_physician"
         android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -66,7 +66,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Assigned Physician"
+        android:text="@string/assigned_physician"
         app:layout_constraintStart_toEndOf="@+id/labelAppointmentPhysician"
         app:layout_constraintTop_toBottomOf="@+id/appointmentId" />
 
@@ -75,7 +75,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:text="Date:"
+        android:text="@string/label_date"
         android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/appointmentDate"
@@ -86,7 +86,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:text="Appointment Date"
+        android:text="@string/appointment_date_placeholder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appointmentStatus" />
 
@@ -95,7 +95,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Patient:"
+        android:text="@string/label_patient"
         android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -106,7 +106,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Assigned Patient"
+        android:text="@string/assigned_patient"
         app:layout_constraintStart_toEndOf="@+id/labelAppointmentPatient"
         app:layout_constraintTop_toBottomOf="@+id/appointmentPhysician" />
 
@@ -115,7 +115,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:text="Time:"
+        android:text="@string/label_time"
         android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@+id/labelAppointmentDate"
@@ -126,7 +126,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:text="Appointment Time"
+        android:text="@string/appointment_time_placeholder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appointmentDate" />
 
@@ -135,7 +135,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Notes:"
+        android:text="@string/label_notes"
         android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -146,7 +146,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Appointment Notes"
+        android:text="@string/appointment_notes_placeholder"
         app:layout_constraintStart_toEndOf="@+id/labelAppointmentPatient"
         app:layout_constraintTop_toBottomOf="@+id/appointmentPatient" />
 

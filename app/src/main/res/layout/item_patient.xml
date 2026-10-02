@@ -9,7 +9,7 @@
         android:id="@+id/patient_fullname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Fullname: Patient"
+        android:text="@string/patient_fullname_placeholder"
         android:textSize="20dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -19,7 +19,7 @@
         android:id="@+id/patient_details"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Details"
+        android:text="@string/details"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>

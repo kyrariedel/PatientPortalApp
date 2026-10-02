@@ -11,6 +11,7 @@
         android:layout_height="100dp"
         android:scaleType="centerCrop"
         android:background="@android:color/transparent"
+        android:contentDescription="@string/cd_task_image"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
@@ -29,26 +30,26 @@
             android:id="@+id/taskTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Task:"
+            android:text="@string/label_task"
             android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/taskPhysician"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Physician:"/>
+            android:text="@string/label_physician"/>
 
         <TextView
             android:id="@+id/startDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Start Date: 01/01/2024"/>
+            android:text="@string/start_date_placeholder"/>
 
         <TextView
             android:id="@+id/endDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="End Date: 01/01/2024"/>
+            android:text="@string/end_date_placeholder"/>
 
     </LinearLayout>
 
@@ -64,7 +65,7 @@
             android:id="@+id/edit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ADD PHOTO"
+            android:text="@string/add_photo"
             android:backgroundTint="#7932a8"
             app:cornerRadius="5dp"/>
     </LinearLayout>

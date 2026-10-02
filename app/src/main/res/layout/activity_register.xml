@@ -21,17 +21,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:text="BridgeCare"
+            android:text="@string/app_name"
             android:textSize="32sp"
             android:textStyle="bold"
-            android:textColor="#000000" />
+            android:textColor="?android:attr/textColorPrimary" />
 
         <ImageView
             android:id="@+id/imageLogo"
             android:layout_width="52dp"
             android:layout_height="52dp"
             android:src="@drawable/care_connect_image_foreground"
-            android:contentDescription="Logo"
+            android:contentDescription="@string/cd_app_logo"
             android:layout_marginEnd="8dp" />
     </LinearLayout>
 
@@ -46,7 +46,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="First Name"
+            android:hint="@string/first_name_hint"
             android:inputType="textPersonName" />
 
         <EditText
@@ -54,7 +54,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Last Name"
+            android:hint="@string/last_name_hint"
             android:inputType="textPersonName" />
     </LinearLayout>
 
@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:focusable="false"
-        android:hint="Date of Birth (YYYY-MM-DD)"
+        android:hint="@string/dob_hint"
         android:inputType="date" />
 
     <EditText
@@ -72,7 +72,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:hint="Email"
+        android:hint="@string/email_hint"
         android:inputType="textEmailAddress" />
 
     <EditText
@@ -109,7 +109,7 @@
         android:id="@+id/buttonRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="REGISTER"
+        android:text="@string/register"
         android:backgroundTint="#303F9F"
         app:cornerRadius="5dp"/>
 
@@ -117,7 +117,7 @@
         android:id="@+id/toLoginPage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="To Login Page"
+        android:text="@string/to_login_page"
         android:backgroundTint="#303F9F"
         app:cornerRadius="5dp"/>
 
