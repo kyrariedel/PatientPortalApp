@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,7 +30,7 @@ import com.bridgecare.app.utility.UserSessionHelper;
 public class RegisterActivity extends AppCompatActivity {
 
     private UserRepository userRepository;
-    private EditText editTextFirstName, editTextLastName, editTextDob, editTextEmail, editTextPassword;
+    private EditText editTextFirstName, editTextLastName, editTextDob, editTextEmail, editTextPassword, editTextPhysicianInviteCode;
     private Spinner spinnerRole;
     private Button buttonRegister, toLoginButton;
     private ProgressBar authProgressBar;
@@ -71,6 +72,7 @@ public class RegisterActivity extends AppCompatActivity {
         buttonRegister = findViewById(R.id.buttonRegister);
         toLoginButton = findViewById(R.id.toLoginPage);
         authProgressBar = findViewById(R.id.authProgressBar);
+        editTextPhysicianInviteCode = findViewById(R.id.editTextPhysicianInviteCode);
     }
 
     private void setupRoleSpinner() {
@@ -78,6 +80,21 @@ public class RegisterActivity extends AppCompatActivity {
                 R.array.role_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerRole.setAdapter(adapter);
+        spinnerRole.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                boolean isPhysician = "Physician".equals(parent.getItemAtPosition(position).toString());
+                editTextPhysicianInviteCode.setVisibility(isPhysician ? View.VISIBLE : View.GONE);
+                if (!isPhysician) {
+                    editTextPhysicianInviteCode.setText("");
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                editTextPhysicianInviteCode.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void setupListeners() {
@@ -103,7 +120,7 @@ public class RegisterActivity extends AppCompatActivity {
         String password = editTextPassword.getText().toString();
         String selectedRole = spinnerRole.getSelectedItem().toString();
 
-        if (!validateInputs(firstName, lastName, dobString, email, password)) {
+        if (!validateInputs(firstName, lastName, dobString, email, password, selectedRole)) {
             return;
         }
         if ("Patient".equals(selectedRole)) {
@@ -113,7 +130,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-    private boolean validateInputs(String firstName, String lastName, String dobString, String email, String password) {
+    private boolean validateInputs(String firstName, String lastName, String dobString, String email, String password, String selectedRole) {
         if (firstName.isEmpty() || lastName.isEmpty() || dobString.isEmpty() || email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, R.string.error_fill_all_fields, Toast.LENGTH_SHORT).show();
             return false;
@@ -132,6 +149,13 @@ public class RegisterActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.error_select_dob, Toast.LENGTH_SHORT).show();
             return false;
         }
+        if ("Physician".equals(selectedRole)) {
+            String inviteCode = editTextPhysicianInviteCode.getText().toString().trim();
+            if (!AuthValidator.isValidPhysicianInviteCode(inviteCode)) {
+                Toast.makeText(this, R.string.error_invalid_physician_invite, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
         return true;
     }
 
@@ -144,6 +168,7 @@ public class RegisterActivity extends AppCompatActivity {
         setBusy(true);
         userRepository.registerUser(user, password, task -> {
             if (task.isSuccessful()) {
+                userSessionHelper.clearUser();
                 Toast.makeText(this,
                         getString(R.string.register_success, user.getRole(), user.getFullName()),
                         Toast.LENGTH_SHORT).show();

@@ -28,4 +28,6 @@
     <string name="register_success">%1$s registered. Please log in, %2$s.</string>
     <string name="forgot_password">Forgot password?</string>
     <string name="password_hint">Password (min 6 characters)</string>
+    <string name="physician_invite_code_hint">Physician invite code</string>
+    <string name="error_invalid_physician_invite">Enter a valid physician invite code</string>
 </resources>

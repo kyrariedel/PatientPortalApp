@@ -42,7 +42,7 @@ public class PatientDashboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_patient_dashboard);
         userSessionHelper = new UserSessionHelper(this);
 
-        if (!userSessionHelper.isUserLoggedIn() || !userSessionHelper.getRole().equals("Patient")) {
+        if (!userSessionHelper.isUserLoggedIn() || !"Patient".equals(userSessionHelper.getRole())) {
             finish();
             return;
         }

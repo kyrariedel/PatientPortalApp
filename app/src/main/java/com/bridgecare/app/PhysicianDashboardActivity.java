@@ -52,6 +52,11 @@ public class PhysicianDashboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_physician_dashboard);
         userSessionHelper = new UserSessionHelper(this);
 
+        if (!userSessionHelper.isUserLoggedIn() || !"Physician".equals(userSessionHelper.getRole())) {
+            finish();
+            return;
+        }
+
         initDatabase();
         initViews();
         setupListeners();
