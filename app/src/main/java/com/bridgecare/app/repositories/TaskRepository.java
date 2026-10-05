@@ -77,7 +77,7 @@ public class TaskRepository implements ITaskRepository {
         if (physicianId == null || physicianId.isEmpty()) {
             throw new IllegalArgumentException("Physician ID cannot be null or empty");
         }
-        mDatabaseTasks.orderByChild("physicianAssigned").equalTo(physicianId).addValueEventListener(listener);
+        mDatabaseTasks.orderByChild("physicianAssignedId").equalTo(physicianId).addValueEventListener(listener);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class TaskRepository implements ITaskRepository {
         if (patientId == null || patientId.isEmpty()) {
             throw new IllegalArgumentException("Patient ID cannot be null or empty");
         }
-        mDatabaseTasks.orderByChild("patientAssigned").equalTo(patientId).addValueEventListener(listener);
+        mDatabaseTasks.orderByChild("patientAssignedId").equalTo(patientId).addValueEventListener(listener);
     }
 
     @Override

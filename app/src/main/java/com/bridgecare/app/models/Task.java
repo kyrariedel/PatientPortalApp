@@ -10,8 +10,8 @@ public class Task {
     private String taskTitle;
     private String taskDescription;
     private List<String> taskImagesUrls = new ArrayList<>();
-    private String patientAssigned;
-    private String physicianAssigned;
+    private String patientAssignedId;
+    private String physicianAssignedId;
     private transient LocalDate startDate;
     private transient LocalDate endDate;
     private transient LocalDateTime createdOn = LocalDateTime.now();
@@ -30,8 +30,8 @@ public class Task {
         this.taskTitle = taskTitle;
         this.taskDescription = taskDescription;
         this.taskImagesUrls = taskImages != null ? taskImages : new ArrayList<>();
-        this.patientAssigned = patientAssignedId;
-        this.physicianAssigned = physicianAssignedId;
+        this.patientAssignedId = patientAssignedId;
+        this.physicianAssignedId = physicianAssignedId;
         this.startDate = startDate;
         this.endDate = endDate;
         this.taskImageUrl = taskImageUrl;
@@ -44,8 +44,8 @@ public class Task {
         this.taskTitle = taskTitle;
         this.taskDescription = taskDescription;
         this.taskImagesUrls = taskImages != null ? taskImages : new ArrayList<>();
-        this.patientAssigned = patientAssignedId;
-        this.physicianAssigned = physicianAssignedId;
+        this.patientAssignedId = patientAssignedId;
+        this.physicianAssignedId = physicianAssignedId;
         this.startDate = startDate;
         this.endDate = endDate;
     }
@@ -96,19 +96,19 @@ public class Task {
     }
 
     public String getPatientAssignedId() {
-        return patientAssigned;
+        return patientAssignedId;
     }
 
-    public void setPatientAssignedId(String patientAssigned) {
-        this.patientAssigned = patientAssigned;
+    public void setPatientAssignedId(String patientAssignedId) {
+        this.patientAssignedId = patientAssignedId;
     }
 
     public String getPhysicianAssignedId() {
-        return physicianAssigned;
+        return physicianAssignedId;
     }
 
-    public void setPhysicianAssignedId(String physicianAssigned) {
-        this.physicianAssigned = physicianAssigned;
+    public void setPhysicianAssignedId(String physicianAssignedId) {
+        this.physicianAssignedId = physicianAssignedId;
     }
 
     public LocalDate getStartDate() {

@@ -10,16 +10,16 @@ import com.bridgecare.app.models.User;
 public interface IUserRepository {
 
     /**
-     * Registers a user with the given user object, password, and user type.
-     * Password is hashed and stored in Firebase, and the user object is stored in the database.
-     * The user object doesn't have the password field, firebase handles that.
+     * Registers a user with Firebase Auth, optionally verifies a physician invite code
+     * against hashed values in the database, then writes the profile and only then
+     * reports completion so callers can sign out after the write finishes.
      *
-     * @param user     the user object to register
-     * @param password the password to register with, not related to the user object, firebase handles this.
-     * @param listener the listener to call when the registration is complete
-     * @param <T>      the type of user to register
+     * @param user                 the user object to register
+     * @param password             the password to register with
+     * @param physicianInviteCode  required when the user role is Physician; ignored otherwise
+     * @param listener             called after the profile write, or earlier on failure
      */
-    <T extends User> void registerUser(T user, String password, OnCompleteListener<AuthResult> listener);
+    <T extends User> void registerUser(T user, String password, String physicianInviteCode, OnCompleteListener<Void> listener);
 
     /**
      * Logs in a user with the given email and password.

@@ -1,0 +1,33 @@
+{
+  "rules": {
+    "users": {
+      ".read": "auth != null",
+      ".indexOn": ["role", "patient"],
+      "$uid": {
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "tasks": {
+      ".read": "auth != null && ((query.orderByChild == 'patientAssignedId' && query.equalTo == auth.uid) || (query.orderByChild == 'physicianAssignedId' && query.equalTo == auth.uid))",
+      ".indexOn": ["patientAssignedId", "physicianAssignedId"],
+      "$taskId": {
+        ".read": "auth != null && (data.child('patientAssignedId').val() == auth.uid || data.child('physicianAssignedId').val() == auth.uid)",
+        ".write": "auth != null && ((newData.exists() && (newData.child('patientAssignedId').val() == auth.uid || newData.child('physicianAssignedId').val() == auth.uid)) || (!newData.exists() && (data.child('patientAssignedId').val() == auth.uid || data.child('physicianAssignedId').val() == auth.uid)))"
+      }
+    },
+    "appointments": {
+      ".read": "auth != null && ((query.orderByChild == 'patientAssignedId' && query.equalTo == auth.uid) || (query.orderByChild == 'physicianAssignedId' && query.equalTo == auth.uid))",
+      ".indexOn": ["patientAssignedId", "physicianAssignedId"],
+      "$appointmentId": {
+        ".read": "auth != null && (data.child('patientAssignedId').val() == auth.uid || data.child('physicianAssignedId').val() == auth.uid)",
+        ".write": "auth != null && ((newData.exists() && (newData.child('patientAssignedId').val() == auth.uid || newData.child('physicianAssignedId').val() == auth.uid)) || (!newData.exists() && (data.child('patientAssignedId').val() == auth.uid || data.child('physicianAssignedId').val() == auth.uid)))"
+      }
+    },
+    "physicianInviteCodes": {
+      "$codeHash": {
+        ".read": "auth != null",
+        ".write": false
+      }
+    }
+  }
+}

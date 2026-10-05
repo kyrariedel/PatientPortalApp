@@ -124,9 +124,10 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
         if ("Patient".equals(selectedRole)) {
-            createUser(new Patient(firstName, lastName, dob, email), password);
+            createUser(new Patient(firstName, lastName, dob, email), password, null);
         } else if ("Physician".equals(selectedRole)) {
-            createUser(new Physician(firstName, lastName, dob, email), password);
+            createUser(new Physician(firstName, lastName, dob, email), password,
+                    editTextPhysicianInviteCode.getText().toString().trim());
         }
     }
 
@@ -164,9 +165,9 @@ public class RegisterActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void createUser(User user, String password) {
+    private void createUser(User user, String password, String physicianInviteCode) {
         setBusy(true);
-        userRepository.registerUser(user, password, task -> {
+        userRepository.registerUser(user, password, physicianInviteCode, task -> {
             if (task.isSuccessful()) {
                 userSessionHelper.clearUser();
                 Toast.makeText(this,
@@ -175,7 +176,14 @@ public class RegisterActivity extends AppCompatActivity {
                 navigateToLogin();
             } else {
                 setBusy(false);
-                Toast.makeText(this, R.string.error_register_failed, Toast.LENGTH_SHORT).show();
+                Exception error = task.getException();
+                boolean invalidInvite = error instanceof SecurityException
+                        || (error != null && error.getMessage() != null && error.getMessage().toLowerCase().contains("invite"));
+                if (invalidInvite) {
+                    Toast.makeText(this, R.string.error_invalid_physician_invite, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, R.string.error_register_failed, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

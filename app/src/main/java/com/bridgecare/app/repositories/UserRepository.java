@@ -2,6 +2,7 @@ package com.bridgecare.app.repositories;
 
 import android.util.Log;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -13,6 +14,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Map;
 
 import com.bridgecare.app.models.User;
+import com.bridgecare.app.utility.AuthValidator;
 
 public class UserRepository implements IUserRepository {
 
@@ -24,23 +26,65 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
-    public <T extends User> void registerUser(T user, String password, OnCompleteListener<AuthResult> listener) {
+    public <T extends User> void registerUser(T user, String password, String physicianInviteCode,
+                                             OnCompleteListener<Void> listener) {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.createUserWithEmailAndPassword(user.getEmail(), password).addOnCompleteListener(task -> {
-            if (task.isSuccessful() && auth.getCurrentUser() != null) {
-                FirebaseUser firebaseUser = auth.getCurrentUser();
-                user.setId(firebaseUser.getUid());
-                saveUserData(firebaseUser, user);
-                Log.d(TAG, "User registered successfully with id: " + firebaseUser.getUid());
-            } else {
+            if (!task.isSuccessful() || auth.getCurrentUser() == null) {
                 Log.e(TAG, "User registration failed", task.getException());
+                listener.onComplete(Tasks.forException(
+                        task.getException() != null ? task.getException() : new IllegalStateException("Registration failed")));
+                return;
             }
-            listener.onComplete(task);
+            FirebaseUser firebaseUser = auth.getCurrentUser();
+            user.setId(firebaseUser.getUid());
+            if ("Physician".equals(user.getRole())) {
+                verifyPhysicianInviteThenSave(firebaseUser, user, physicianInviteCode, listener);
+            } else {
+                saveUserData(firebaseUser, user, listener);
+            }
         });
     }
 
-    private <T extends User> void saveUserData(FirebaseUser firebaseUser, T user) {
-        mDatabase.child(firebaseUser.getUid()).setValue(user);
+    private <T extends User> void verifyPhysicianInviteThenSave(FirebaseUser firebaseUser, T user,
+                                                               String physicianInviteCode,
+                                                               OnCompleteListener<Void> listener) {
+        if (physicianInviteCode == null || physicianInviteCode.trim().isEmpty()) {
+            abortRegistration(firebaseUser, new SecurityException("Physician invite code required"), listener);
+            return;
+        }
+        String codeHash = AuthValidator.hashPhysicianInviteCode(physicianInviteCode);
+        FirebaseDatabase.getInstance().getReference("physicianInviteCodes").child(codeHash)
+                .get()
+                .addOnCompleteListener(inviteTask -> {
+                    if (!inviteTask.isSuccessful() || inviteTask.getResult() == null || !inviteTask.getResult().exists()) {
+                        abortRegistration(firebaseUser, new SecurityException("Invalid physician invite code"), listener);
+                        return;
+                    }
+                    saveUserData(firebaseUser, user, listener);
+                });
+    }
+
+    private <T extends User> void saveUserData(FirebaseUser firebaseUser, T user, OnCompleteListener<Void> listener) {
+        mDatabase.child(firebaseUser.getUid()).setValue(user).addOnCompleteListener(saveTask -> {
+            if (saveTask.isSuccessful()) {
+                Log.d(TAG, "User registered successfully with id: " + firebaseUser.getUid());
+                listener.onComplete(saveTask);
+            } else {
+                Log.e(TAG, "User profile write failed", saveTask.getException());
+                abortRegistration(firebaseUser, saveTask.getException() != null
+                        ? saveTask.getException()
+                        : new IllegalStateException("Failed to save user profile"), listener);
+            }
+        });
+    }
+
+    private void abortRegistration(FirebaseUser firebaseUser, Exception error, OnCompleteListener<Void> listener) {
+        if (firebaseUser != null) {
+            firebaseUser.delete();
+        }
+        FirebaseAuth.getInstance().signOut();
+        listener.onComplete(Tasks.forException(error != null ? error : new IllegalStateException("Registration aborted")));
     }
 
     @Override

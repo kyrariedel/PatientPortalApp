@@ -2,9 +2,12 @@ package com.bridgecare.app.utility;
 
 import android.util.Patterns;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public final class AuthValidator {
     public static final int MIN_PASSWORD_LENGTH = 6;
-    public static final String PHYSICIAN_INVITE_CODE = "CARE-MD-ACCESS";
 
     private AuthValidator() {}
 
@@ -17,6 +20,20 @@ public final class AuthValidator {
     }
 
     public static boolean isValidPhysicianInviteCode(String inviteCode) {
-        return PHYSICIAN_INVITE_CODE.equals(inviteCode);
+        return inviteCode != null && !inviteCode.trim().isEmpty();
+    }
+
+    public static String hashPhysicianInviteCode(String inviteCode) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashed = digest.digest(inviteCode.trim().getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder(hashed.length * 2);
+            for (byte value : hashed) {
+                hex.append(String.format("%02x", value));
+            }
+            return hex.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 is required to verify invite codes", e);
+        }
     }
 }
